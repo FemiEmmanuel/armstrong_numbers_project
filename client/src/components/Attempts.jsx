@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useGetAttemptsQuery } from "../store/api";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 
 function Attempts({ darkMode }) {
   const [page, setPage] = useState(1);
@@ -16,15 +17,7 @@ function Attempts({ darkMode }) {
   };
 
   if (isLoading) {
-    return (
-      <div
-        className={`flex justify-center items-center ${
-          darkMode ? "text-white" : "text-black"
-        }`}
-      >
-        Loading...
-      </div>
-    );
+    return <LoadingSpinner darkMode={darkMode} />;
   }
 
   if (error) {
