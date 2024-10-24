@@ -1,20 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import SignupForm from "../components/SignupForm";
 import LoginForm from "../components/LoginForm";
 import WelcomeSection from "../components/WelcomeSection";
 
 const AuthPage = () => {
   const [activeTab, setActiveTab] = useState("login");
-  const navigate = useNavigate();
-  const { isAuthenticated } = useSelector((state) => state.auth);
-
-  // useEffect(() => {
-  //   if (isAuthenticated) {
-  //     navigate("/home");
-  //   }
-  // }, [isAuthenticated, navigate]);
 
   const switchTab = () => {
     setActiveTab((prev) => (prev === "login" ? "signup" : "login"));
@@ -22,7 +12,7 @@ const AuthPage = () => {
 
   return (
     <div className="flex min-h-screen bg-[#F5F5F5]">
-      <div className="w-1/2 p-8">
+      <div className="w-full md:w-1/2 p-8">
         <h1 className="text-3xl font-bold text-[#003366] mb-8">
           Armstrong App
         </h1>
@@ -46,7 +36,9 @@ const AuthPage = () => {
           )}
         </div>
       </div>
-      <WelcomeSection />
+      <div className="w-1/2 hidden md:block">
+        <WelcomeSection />
+      </div>
     </div>
   );
 };

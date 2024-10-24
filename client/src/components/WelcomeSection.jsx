@@ -1,5 +1,5 @@
 const WelcomeSection = () => (
-  <div className="w-1/2 bg-[#003366] flex items-center justify-center">
+  <div className="w-full h-full bg-[#003366] flex items-center justify-center">
     <div className="text-white max-w-md">
       <h2 className="text-3xl font-bold mb-4">
         Welcome to the Armstrong Number Calculator

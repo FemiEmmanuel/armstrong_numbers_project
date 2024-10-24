@@ -68,7 +68,7 @@ class AttemptViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         
         number = serializer.validated_data['attempted_number']
-        #check if attemoted number has been attempted before by the user
+        #check if attempted number has been attempted before by the user
         existing_attempt = Attempt.active_objects.filter(
             user=request.user,
             attempted_number=number

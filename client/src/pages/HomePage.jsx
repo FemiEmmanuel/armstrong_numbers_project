@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import Sidebar from "./Sidebar";
-import Header from "./Header";
-import Content from "./Content";
+import Sidebar from "../components/Sidebar"
+import Header from "../components/Header";
+import Content from "../components/Content";
 
-const Layout = () => {
+const HomePage = () => {
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const [activePage, setActivePage] = useState("home");
@@ -58,4 +58,4 @@ const Layout = () => {
   );
 };
 
-export default Layout;
+export default HomePage;

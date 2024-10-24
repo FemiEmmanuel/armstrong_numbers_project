@@ -9,7 +9,7 @@ import armstrong7 from "../assets/armstrong7.png";
 import armstrong8 from "../assets/armstrong8.jpg";
 import Armstrong from "../assets/Armstrong.mp4";
 
-const ArmstrongNumbersPage = ({ darkMode }) => {
+const Home = ({ darkMode }) => {
   const images = [
     { src: armstrong1, alt: "Armstrong Number" },
     { src: armstrong2, alt: "Armstrong Number" },
@@ -117,4 +117,4 @@ const ArmstrongNumbersPage = ({ darkMode }) => {
   );
 };
 
-export default ArmstrongNumbersPage;
+export default Home;

@@ -1,6 +1,6 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { Home, Phone, Mail } from "lucide-react";
+import { LocateFixed, Phone, Mail } from "lucide-react";
 import ErrorDisplay from "./ErrorDisplay";
 
 const Contact = ({ darkMode }) => {
@@ -37,7 +37,7 @@ const Contact = ({ darkMode }) => {
           </p>
           <div className="space-y-6">
             <ContactDetail
-              Icon={Home}
+              Icon={LocateFixed}
               label="Our Location"
               value={contactInfo.address}
               darkMode={darkMode}
