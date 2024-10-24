@@ -94,6 +94,7 @@ class Attempt(TimeStampedModel):
         ordering = ['-created_at']
         verbose_name = _('attempt')
         verbose_name_plural = _('attempts')
+        unique_together = (('user', 'attempted_number'),)
 
     def __str__(self):
         return f"{self.user.username} - {self.attempted_number} - {'Armstrong' if self.is_armstrong else 'Not Armstrong'}"

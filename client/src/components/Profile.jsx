@@ -182,7 +182,7 @@ function Profile({ darkMode }) {
                     darkMode={darkMode}
                   />
                 </div>
-                <div className="col-span-2">
+                <div>
                   <label
                     className={`block text-sm font-medium mb-1 ${
                       darkMode ? "text-gray-200" : "text-[#003366]"
@@ -199,9 +199,6 @@ function Profile({ darkMode }) {
                     darkMode={darkMode}
                   />
                 </div>
-              </div>
-              <ErrorDisplay error={error} />
-              <div className="w-[50%]">
                 <SubmitButton
                   isLoading={isLoading}
                   label={isLoading ? "Updating..." : "Save Changes"}
@@ -212,6 +209,7 @@ function Profile({ darkMode }) {
                   }`}
                 />
               </div>
+              <ErrorDisplay error={error} />  
             </form>
           ) : (
             <div className={`space-y-6 ${darkMode ? "text-gray-300" : ""}`}>

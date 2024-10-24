@@ -63,13 +63,41 @@ class AttemptViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Attempt.active_objects.filter(user=self.request.user).order_by('-created_at')
 
-    def perform_create(self, serializer):
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        number = serializer.validated_data['attempted_number']
+        #check if attemoted number has been attempted before by the user
+        existing_attempt = Attempt.active_objects.filter(
+            user=request.user,
+            attempted_number=number
+        ).first()
+        
+        if existing_attempt:
+            return Response(
+                self.get_serializer(existing_attempt).data,
+                status=status.HTTP_200_OK
+            )
+        #create a new attempt if not created
         try:
-            number = serializer.validated_data['attempted_number']
-            is_armstrong = self.is_armstrong_number(number)
-            serializer.save(user=self.request.user, is_armstrong=is_armstrong)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED,
+                headers=headers
+            )
         except IntegrityError as e:
-            return Response({"detail": get_integrity_error_message(str(e))})
+            return Response(
+                {"detail": get_integrity_error_message(str(e))},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    def perform_create(self, serializer):
+        is_armstrong = self.is_armstrong_number(serializer.validated_data['attempted_number'])
+        serializer.save(user=self.request.user, is_armstrong=is_armstrong)
+
 
     @staticmethod
     def is_armstrong_number(num):
@@ -98,21 +126,25 @@ class AttemptViewSet(viewsets.ModelViewSet):
         if min_range > max_range:
             return Response({"detail": "min_range must be less than max_range."}, status=status.HTTP_400_BAD_REQUEST)
 
-        if max_range - min_range > 5000:
-            return Response({"detail": "Range too large. Please limit to 5000 numbers."}, status=status.HTTP_400_BAD_REQUEST)
+        if max_range - min_range > 1000000:
+            return Response({"detail": "Range too large. Please limit to 1,000,000 numbers at a time."}, status=status.HTTP_400_BAD_REQUEST)
 
         armstrong_numbers = []
+        attempts_to_create = []
+
         for num in range(min_range, max_range + 1):
             if self.is_armstrong_number(num):
                 armstrong_numbers.append(num)
-                Attempt.objects.create(user=request.user, attempted_number=num, is_armstrong=True)
+                attempts_to_create.append(Attempt(user=request.user, attempted_number=num, is_armstrong=True))
+
+        Attempt.objects.bulk_create(attempts_to_create, ignore_conflicts=True)
 
         return Response({
             "min_range": min_range,
             "max_range": max_range,
             "armstrong_numbers": armstrong_numbers,
             "count": len(armstrong_numbers)
-        })
+        }, status=status.HTTP_200_OK)
 
 class FeedbackViewSet(viewsets.ModelViewSet):
     queryset = Feedback.active_objects.all()
@@ -149,7 +181,7 @@ class LogoutView(APIView):
 
     def post(self, request):
         try:
-            refresh_token = request.user.get('refresh')
+            refresh_token = request.data.get('refresh_token')
             if refresh_token:
                 token = RefreshToken(refresh_token)
                 token.blacklist()

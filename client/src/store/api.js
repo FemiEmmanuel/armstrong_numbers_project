@@ -6,14 +6,6 @@ import {
   setContactInfo,
   setError as setContactError,
 } from "./slices/contactInfoSlice";
-import {
-  setAttempts,
-  setCurrentPage,
-  setTotalPages,
-  setError as setAttemptError,
-  setNextPage,
-  setPreviousPage,
-} from "./slices/attemptSlice";
 
 const baseQuery = fetchBaseQuery({
   baseUrl: "http://localhost:8000/api/",
@@ -82,9 +74,10 @@ export const api = createApi({
     }),
 
     logout: builder.mutation({
-      query: () => ({
+      query: (refresh_token) => ({
         url: "logout/",
         method: "POST",
+        body: { refresh_token },
       }),
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
@@ -194,27 +187,12 @@ export const api = createApi({
       transformResponse: (response) => ({
         attempts: response.results,
         pagination: {
-          currentPage: response.current_page,
           totalPages: Math.ceil(response.count / 10),
           nextPage: response.next,
           previousPage: response.previous,
           totalCount: response.count,
         },
       }),
-      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled;
-          dispatch(setAttempts(data.attempts));
-          dispatch(setCurrentPage(data.pagination.currentPage));
-          dispatch(setTotalPages(data.pagination.totalPages));
-          dispatch(setNextPage(data.pagination.nextPage));
-          dispatch(setPreviousPage(data.pagination.previousPage));
-        } catch (error) {
-          const errorMessage =
-            error?.error?.data?.detail || "Error loading attempts";
-          dispatch(setAttemptError(errorMessage));
-        }
-      },
     }),
 
     checkRange: builder.mutation({
