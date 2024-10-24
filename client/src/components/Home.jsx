@@ -82,21 +82,17 @@ const Home = ({ darkMode }) => {
                 darkMode ? "border-gray-700" : "border-gray-300"
               }`}
             >
-              <div className="relative pb-[56.25%] overflow-hidden">
-                <iframe
-                  className="absolute top-0 left-0 w-full h-full"
-                  src={`${Armstrong}${
-                    Armstrong.includes("?") ? "&" : "?"
-                  }mute=1`}
-                  allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  muted
-                ></iframe>
-              </div>
+              <video
+                className="w-full rounded-lg"
+                src={Armstrong}
+                controls
+                muted
+                autoPlay
+              />
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 sm:grid-cols-4 mt-5 gap-5">
           {images.map((image, index) => (
             <div
               key={index}
