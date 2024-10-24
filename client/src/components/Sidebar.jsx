@@ -1,7 +1,7 @@
 import React from "react";
 import {
   Home,
-  CheckCircle,
+  LucideCalculator,
   MessageSquare,
   Mail,
   User,
@@ -50,7 +50,7 @@ const linkGroups = [
     heading: "Main",
     links: [
       { icon: Home, text: "Home", id: "home" },
-      { icon: CheckCircle, text: "Check Armstrong", id: "check-armstrong" },
+      { icon: LucideCalculator, text: "Check Armstrong", id: "check-armstrong" },
       { icon: MessageSquare, text: "Feedback", id: "feedback" },
       { icon: Mail, text: "Contact", id: "contact" },
     ],

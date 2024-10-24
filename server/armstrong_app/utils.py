@@ -7,7 +7,7 @@ def format_error_messages(errors):
 
 def get_integrity_error_message(error_message):
     if 'username' in error_message.lower():
-        return "A user with this username already exists."
+        return "Username already exists."
     elif 'email' in error_message.lower():
-        return "A user with this email already exists."
+        return "Email already exists."
     return "This record already exists."
