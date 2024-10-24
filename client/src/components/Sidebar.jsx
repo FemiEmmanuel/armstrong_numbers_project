@@ -1,91 +1,118 @@
-import React, { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { logout } from "../store/slices/authSlice";
-import { clearUser } from "../store/slices/userSlice";
-import { useGetUserQuery } from "../store/api";
-import { FaHome, FaCheck, FaCog, FaComments, FaEnvelope } from "react-icons/fa";
+import React from "react";
+import {
+  Home,
+  CheckCircle,
+  MessageSquare,
+  Mail,
+  User,
+  List,
+} from "lucide-react";
 
-const Sidebar = ({ activeComponent, setActiveComponent }) => {
-  const { isAuthenticated } = useSelector((state) => state.auth);
-  const user = useSelector((state) => state.user.currentUser);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  const { data: userData, refetch } = useGetUserQuery(undefined, {
-    skip: !isAuthenticated,
-  });
-
-  useEffect(() => {
-    if (isAuthenticated && !user) {
-      refetch();
-    }
-  }, [isAuthenticated, user, refetch]);
-
-  const handleLogout = () => {
-    dispatch(logout());
-    dispatch(clearUser());
-    navigate("/");
-  };
-
-  const navItems = [
-    { name: "Home", icon: FaHome },
-    { name: "Check Armstrong", icon: FaCheck },
-    { name: "Profile Settings", icon: FaCog },
-    { name: "Feedback", icon: FaComments },
-    { name: "Contact", icon: FaEnvelope },
-  ];
-
-  const name = (userData || user)?.first_name || "User";
-  const email = (userData || user)?.email || "Email";
-  const avatarPlaceholder = name.charAt(0).toUpperCase();
-
-  return (
-    <div className="bg-white w-auto min-h-full flex flex-col shadow-lg rounded-lg overflow-hidden">
-      {/* Logo */}
-      <div className="p-4">
-        <h2 className="text-3xl text-center mb-4 font-bold text-[#003366]">
-          Armstrong
-        </h2>
-        <hr className="my-2 border-gray-300" /> {/* Faint horizontal line */}
-      </div>
-
-      {/* Navigation */}
-      <nav className="flex-grow p-4">
-        {" "}
-        {/* Margin top for spacing */}
-        <ul>
-          {navItems.map((item) => (
-            <li key={item.name}>
-              <button
-                onClick={() => setActiveComponent(item.name)}
-                className={`w-full flex items-center px-2 py-1 mb-2 rounded-3xl hover:bg-[#FF6F61] hover:text-white transition-colors duration-200 ease-in-out ${
-                  activeComponent === item.name
-                    ? "bg-[#003366] text-white"
-                    : "text-gray-600"
-                }`}
-              >
-                <item.icon className="mr-3" />
-                {item.name}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </nav>
-
-      {/* User Profile */}
-      <div className="p-4 border-t">
-        <div className="flex items-center">
-          <div className="w-10 h-10 rounded-full bg-[#003366] text-white flex items-center justify-center text-2xl font-bold mr-3">
-            {avatarPlaceholder}
-          </div>
-          <div>
-            <h3 className="font-bold">{name}</h3>
-            <p className="text-sm text-gray-500">{email}</p>
-          </div>
-        </div>
-      </div>
+const SidebarLink = ({
+  icon: Icon,
+  text,
+  isActive,
+  onClick,
+  expanded,
+  darkMode,
+}) => (
+  <button
+    onClick={onClick}
+    className={`w-full flex items-center p-2 rounded-lg transition-colors duration-200 ${
+      isActive
+        ? "text-blue-500 bg-blue-100 dark:bg-blue-900 dark:text-blue-300"
+        : `${
+            darkMode
+              ? "text-gray-300 hover:bg-gray-700"
+              : "text-gray-600 hover:bg-gray-100"
+          }`
+    }`}
+  >
+    <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+      <Icon size={24} />
     </div>
+    <span
+      className={`ml-3 whitespace-nowrap transition-opacity duration-300 ${
+        expanded ? "opacity-100" : "opacity-0"
+      }`}
+      style={{
+        width: expanded ? "auto" : "0",
+        overflow: "hidden",
+      }}
+    >
+      {text}
+    </span>
+  </button>
+);
+
+const linkGroups = [
+  {
+    heading: "Main",
+    links: [
+      { icon: Home, text: "Home", id: "home" },
+      { icon: CheckCircle, text: "Check Armstrong", id: "check-armstrong" },
+      { icon: MessageSquare, text: "Feedback", id: "feedback" },
+      { icon: Mail, text: "Contact", id: "contact" },
+    ],
+  },
+  {
+    heading: "User Settings",
+    links: [
+      { icon: User, text: "Profile", id: "profile" },
+      { icon: List, text: "Attempts", id: "attempts" },
+    ],
+  },
+];
+
+const Sidebar = ({
+  expanded,
+  activePage,
+  setActivePage,
+  isMobile,
+  darkMode,
+}) => {
+  return (
+    <aside
+      className={`h-screen fixed top-0 left-0 z-30 transition-all duration-300 ease-in-out transform border-r p-3 ${
+        darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+      } ${
+        expanded
+          ? "translate-x-0 w-64"
+          : isMobile
+          ? "-translate-x-full w-64"
+          : "translate-x-0 w-16"
+      }`}
+    >
+      <nav className="flex-1 pt-16">
+        {linkGroups.map((group, groupIndex) => (
+          <div key={groupIndex} className="mb-4">
+            {expanded && (
+              <h3
+                className={`px-4 py-2 text-sm font-semibold transition-opacity duration-300 ${
+                  darkMode ? "text-gray-400" : "text-gray-600"
+                } ${expanded ? "opacity-100" : "opacity-0"}`}
+              >
+                {group.heading}
+              </h3>
+            )}
+            <ul className="space-y-2">
+              {group.links.map((link) => (
+                <li key={link.id}>
+                  <SidebarLink
+                    icon={link.icon}
+                    text={link.text}
+                    isActive={activePage === link.id}
+                    onClick={() => setActivePage(link.id)}
+                    expanded={expanded}
+                    darkMode={darkMode}
+                  />
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </nav>
+    </aside>
   );
 };
 

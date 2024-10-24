@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLoginMutation } from "../store/api";
-import FormInput from "./FormInput";
-import SubmitButton from "./SubmitButton";
+import { FormInput, SubmitButton } from "./FormInput";
 import ErrorDisplay from "./ErrorDisplay";
 
 const LoginForm = ({ onSwitchTab }) => {
@@ -20,9 +19,7 @@ const LoginForm = ({ onSwitchTab }) => {
     try {
       await login(formData).unwrap();
       navigate("/home");
-    } catch (err) {
-      console.error("Failed to login:", err);
-    }
+    } catch (e) {}
   };
 
   return (
@@ -43,7 +40,10 @@ const LoginForm = ({ onSwitchTab }) => {
         placeholder="Password"
         required
       />
-      <SubmitButton isLoading={isLoading} label="Log In" />
+      <SubmitButton
+        isLoading={isLoading}
+        label={isLoading ? "Loging in" : "Log in"}
+      />
       <ErrorDisplay error={error} />
       <p className="mt-4 text-center text-[#003366]">
         Don't have an account?{" "}

@@ -1,27 +1,29 @@
 import React from "react";
 
-const ErrorDisplay = ({ error }) => {
-  if (!error) return null;
+const ErrorDisplay = ({ error, field = null }) => {
+  if (!error || !error.data || !error.data.detail) return null;
 
-  if (error.data?.error) {
-    
-    return <p className="text-red-500 mt-2 text-center">{error.data.error}</p>;
-  } else if (error.data?.details) {
-    
+  const { detail } = error.data;
+
+  if (field && typeof detail === "object" && detail[field]) {
+    return <p className="text-red-500 text-sm mt-1">{detail[field]}</p>;
+  }
+
+  if (!field && typeof detail === "string") {
+    return <p className="text-red-500 mt-2 text-center">{detail}</p>;
+  }
+
+  if (!field && typeof detail === "object" && !Array.isArray(detail)) {
     return (
       <ul className="text-red-500 mt-2 text-center list-disc list-inside">
-        {Object.entries(error.data.details).map(([field, errors]) => (
-          <li key={field}>{`${field}: ${errors.join(", ")}`}</li>
+        {Object.entries(detail).map(([fieldName, message]) => (
+          <li key={fieldName}>{`${fieldName}: ${message}`}</li>
         ))}
       </ul>
     );
   }
 
-  return (
-    <p className="text-red-500 mt-2 text-center">
-      An unexpected error occurred
-    </p>
-  );
+  return null;
 };
 
 export default ErrorDisplay;

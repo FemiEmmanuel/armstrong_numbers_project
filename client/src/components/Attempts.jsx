@@ -1,49 +1,163 @@
-// import React, { useState, useEffect } from "react";
-// import { getAttempts } from "../store/api";
+import React, { useState } from "react";
+import { useGetAttemptsQuery } from "../store/api";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
-// function Attempts() {
-//   const [attempts, setAttempts] = useState([]);
+function Attempts({ darkMode }) {
+  const [page, setPage] = useState(1);
+  const {
+    data: attemptsData,
+    isLoading,
+    isFetching,
+    error,
+  } = useGetAttemptsQuery(page);
 
-//   useEffect(() => {
-//     fetchAttempts();
-//   }, []);
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
 
-//   const fetchAttempts = async () => {
-//     const data = await getAttempts();
-//     setAttempts(data);
-//   };
+  if (isLoading) {
+    return (
+      <div
+        className={`flex justify-center items-center ${
+          darkMode ? "text-white" : "text-black"
+        }`}
+      >
+        Loading...
+      </div>
+    );
+  }
 
-//   return (
-//     <div className="bg-white p-6 rounded-lg shadow-md">
-//       <h2 className="text-2xl font-bold mb-4">Your Attempts</h2>
-//       {attempts.length > 0 ? (
-//         <table className="w-full">
-//           <thead>
-//             <tr className="bg-gray-100">
-//               <th className="p-2 text-left">Number</th>
-//               <th className="p-2 text-left">Result</th>
-//               <th className="p-2 text-left">Timestamp</th>
-//             </tr>
-//           </thead>
-//           <tbody>
-//             {attempts.map((attempt) => (
-//               <tr key={attempt.id} className="border-b">
-//                 <td className="p-2">{attempt.number}</td>
-//                 <td className="p-2">
-//                   {attempt.is_armstrong ? "Armstrong" : "Not Armstrong"}
-//                 </td>
-//                 <td className="p-2">
-//                   {new Date(attempt.timestamp).toLocaleString()}
-//                 </td>
-//               </tr>
-//             ))}
-//           </tbody>
-//         </table>
-//       ) : (
-//         <p>No attempts yet.</p>
-//       )}
-//     </div>
-//   );
-// }
+  if (error) {
+    return <div className="text-red-500">Error: {error.message}</div>;
+  }
 
-// export default Attempts;
+  const { attempts, pagination } = attemptsData || {
+    attempts: [],
+    pagination: {},
+  };
+  const { currentPage, totalPages, nextPage, previousPage } = pagination;
+
+  return (
+    <div>
+      <h2
+        className={`font-bold mb-4 ${darkMode ? "text-white" : "text-black"}`}
+      >
+        Your Attempts
+      </h2>
+      {attempts.length > 0 ? (
+        <>
+          <div className="overflow-x-auto w-full md:w-full lg:w-[70%] shadow-md">
+            <table
+              className={`w-full ${darkMode ? "bg-gray-800" : "bg-white"}`}
+            >
+              <thead>
+                <tr className={darkMode ? "bg-gray-700" : "bg-gray-100"}>
+                  <th
+                    className={`p-2 text-left ${
+                      darkMode ? "text-gray-200" : "text-gray-700"
+                    }`}
+                  >
+                    Number
+                  </th>
+                  <th
+                    className={`p-2 text-left ${
+                      darkMode ? "text-gray-200" : "text-gray-700"
+                    }`}
+                  >
+                    Result
+                  </th>
+                  <th
+                    className={`p-2 text-left ${
+                      darkMode ? "text-gray-200" : "text-gray-700"
+                    }`}
+                  >
+                    Timestamp
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {attempts.map((attempt) => (
+                  <tr
+                    key={attempt.id}
+                    className={`border-b ${
+                      darkMode
+                        ? "border-gray-700 hover:bg-gray-700"
+                        : "border-gray-200 hover:bg-gray-50"
+                    }`}
+                  >
+                    <td
+                      className={`p-2 text-sm ${
+                        darkMode ? "text-gray-200" : "text-gray-900"
+                      }`}
+                    >
+                      {attempt.attempted_number}
+                    </td>
+                    <td className="p-2 text-sm">
+                      <span
+                        className={`px-2 py-1 rounded ${
+                          attempt.is_armstrong
+                            ? darkMode
+                              ? "bg-green-900 text-green-100"
+                              : "bg-green-100 text-green-800"
+                            : darkMode
+                            ? "bg-red-900 text-red-100"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {attempt.is_armstrong ? "Armstrong" : "Not Armstrong"}
+                      </span>
+                    </td>
+                    <td
+                      className={`p-2 text-sm ${
+                        darkMode ? "text-gray-200" : "text-gray-900"
+                      }`}
+                    >
+                      {new Date(attempt.created_at).toLocaleString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div
+              className={`p-2 flex justify-between items-center ${
+                darkMode ? "bg-gray-800" : "bg-white"
+              }`}
+            >
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={!previousPage || isFetching}
+                className={`px-4 py-2 rounded transition-colors ${
+                  darkMode
+                    ? "bg-blue-600 hover:bg-blue-700 text-white disabled:bg-gray-700 disabled:text-gray-500"
+                    : "bg-blue-500 hover:bg-blue-600 text-white disabled:bg-gray-300"
+                }`}
+              >
+                <FaChevronLeft />
+              </button>
+              <span className={darkMode ? "text-gray-200" : "text-gray-700"}>
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={!nextPage || isFetching}
+                className={`px-4 py-2 rounded transition-colors ${
+                  darkMode
+                    ? "bg-blue-600 hover:bg-blue-700 text-white disabled:bg-gray-700 disabled:text-gray-500"
+                    : "bg-blue-500 hover:bg-blue-600 text-white disabled:bg-gray-300"
+                }`}
+              >
+                <FaChevronRight />
+              </button>
+            </div>
+          </div>
+        </>
+      ) : (
+        <p className={`italic ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+          No attempts yet. Try checking some numbers!
+        </p>
+      )}
+    </div>
+  );
+}
+
+export default Attempts;

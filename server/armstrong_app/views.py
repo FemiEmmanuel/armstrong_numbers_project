@@ -1,45 +1,75 @@
+from django.db import IntegrityError
+from django.http import Http404
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.authtoken.models import Token
-from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
+from rest_framework.views import APIView
+from rest_framework.pagination import PageNumberPagination
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
+from rest_framework.exceptions import ValidationError 
 from django.contrib.auth import get_user_model
 from .models import Attempt, Feedback, ContactInfo
 from .serializers import UserSerializer, AttemptSerializer, FeedbackSerializer, ContactInfoSerializer
+from .utils import format_error_messages, get_integrity_error_message
 
 User = get_user_model()
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
+    queryset = User.active_objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_object(self):
+        obj = super().get_object()
+        if not obj.is_active:
+            raise Http404("User is inactive.")
+        return obj
+    
     @action(detail=False, methods=['GET', 'PUT'], permission_classes=[permissions.IsAuthenticated])
     def me(self, request):
+        serializer = self.get_serializer(request.user)
         if request.method == 'GET':
-            serializer = self.get_serializer(request.user)
             return Response(serializer.data)
         elif request.method == 'PUT':
             serializer = self.get_serializer(request.user, data=request.data, partial=True)
-            if serializer.is_valid():
+            try:
+                serializer.is_valid(raise_exception=True)
                 serializer.save()
                 return Response(serializer.data)
-            return Response({'error': 'Invalid data provided', 'details': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            except ValidationError as e:
+                return Response({"detail": format_error_messages(e.detail)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['POST'], permission_classes=[permissions.IsAuthenticated])
+    def soft_delete(self, request, pk=None):
+        user = self.get_object()
+        if user == request.user or request.user.is_staff:
+            user.soft_delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"detail": "You do not have permission to delete this account."}, status=status.HTTP_403_FORBIDDEN)
+
+class AttemptPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
 class AttemptViewSet(viewsets.ModelViewSet):
-    queryset = Attempt.objects.all()
+    queryset = Attempt.active_objects.all()
     serializer_class = AttemptSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = AttemptPagination
 
     def get_queryset(self):
-        return Attempt.objects.filter(user=self.request.user)
+        return Attempt.active_objects.filter(user=self.request.user).order_by('-created_at')
 
     def perform_create(self, serializer):
-        number = serializer.validated_data['number']
-        is_armstrong = self.is_armstrong_number(number)
-        serializer.save(user=self.request.user, is_armstrong=is_armstrong)
+        try:
+            number = serializer.validated_data['attempted_number']
+            is_armstrong = self.is_armstrong_number(number)
+            serializer.save(user=self.request.user, is_armstrong=is_armstrong)
+        except IntegrityError as e:
+            return Response({"detail": get_integrity_error_message(str(e))})
 
     @staticmethod
     def is_armstrong_number(num):
@@ -56,27 +86,36 @@ class AttemptViewSet(viewsets.ModelViewSet):
     def check_range(self, request):
         min_range = request.data.get('min_range')
         max_range = request.data.get('max_range')
+
         if not min_range or not max_range:
-            return Response({"error": "Both min_range and max_range are required."}, status=status.HTTP_400_BAD_REQUEST)
-        
+            return Response({"detail": "Both min_range and max_range are required."}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
             min_range, max_range = int(min_range), int(max_range)
         except ValueError:
-            return Response({"error": "min_range and max_range must be valid integers."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "min_range and max_range must be valid integers."}, status=status.HTTP_400_BAD_REQUEST)
 
         if min_range > max_range:
-            return Response({"error": "min_range must be less than or equal to max_range."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "min_range must be less than max_range."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if max_range - min_range > 5000:
+            return Response({"detail": "Range too large. Please limit to 5000 numbers."}, status=status.HTTP_400_BAD_REQUEST)
 
         armstrong_numbers = []
         for num in range(min_range, max_range + 1):
             if self.is_armstrong_number(num):
                 armstrong_numbers.append(num)
-                Attempt.objects.create(user=request.user, number=num, is_armstrong=True)
-        
-        return Response({"armstrong_numbers": armstrong_numbers, "count": len(armstrong_numbers)})
+                Attempt.objects.create(user=request.user, attempted_number=num, is_armstrong=True)
+
+        return Response({
+            "min_range": min_range,
+            "max_range": max_range,
+            "armstrong_numbers": armstrong_numbers,
+            "count": len(armstrong_numbers)
+        })
 
 class FeedbackViewSet(viewsets.ModelViewSet):
-    queryset = Feedback.objects.all()
+    queryset = Feedback.active_objects.all()
     serializer_class = FeedbackSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -85,38 +124,60 @@ class FeedbackViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
+        try:
+            serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response({'error': 'Invalid feedback data', 'details': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        except ValidationError as e:
+            return Response({"detail": format_error_messages(e.detail)}, status=status.HTTP_400_BAD_REQUEST)
 
 class ContactInfoViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ContactInfo.objects.all()
     serializer_class = ContactInfoSerializer
     permission_classes = [permissions.AllowAny]
 
+class CustomObtainAuthToken(TokenObtainPairView):
+    def post(self, request, *args, **kwargs):
+            response = super().post(request, *args, **kwargs)
+            if response.status_code == 200:
+                user = User.objects.get(username=request.data.get('username'))
+                response.data['user'] = UserSerializer(user).data
+            return response
+        
+class LogoutView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        try:
+            refresh_token = request.user.get('refresh')
+            if refresh_token:
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+                return Response({"detail": "Successfully logged out."}, status=status.HTTP_200_OK)
+            else:
+                return Response({"detail": "Refresh token is required."}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"detail": "Invalid token."}, status=status.HTTP_400_BAD_REQUEST)
+
 class RegisterView(APIView):
-    permission_classes = [permissions.AllowAny]  # Allow any user to register
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request):
         serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
+        try:
+            serializer.is_valid(raise_exception=True)
             user = serializer.save()
-            token, created = Token.objects.get_or_create(user=user)
+            refresh = RefreshToken.for_user(user)
             return Response({
-                'token': token.key,
-                'user': UserSerializer(user).data
+                'user': UserSerializer(user).data,
+                'tokens': {
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                }
             }, status=status.HTTP_201_CREATED)
-        return Response({'error': 'Invalid registration data', 'details': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-class CustomObtainAuthToken(ObtainAuthToken):
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data, context={'request': request})
-        if serializer.is_valid():
-            user = serializer.validated_data['user']
-            token, created = Token.objects.get_or_create(user=user)
-            return Response({
-                'token': token.key,
-                'user': UserSerializer(user).data
-            })
-        return Response({'error': 'Invalid credentials', 'details': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        except ValidationError as e:
+            return Response({"detail": format_error_messages(e.detail)}, status=status.HTTP_400_BAD_REQUEST)
+        except IntegrityError as e:
+            return Response({"detail": get_integrity_error_message(str(e))}, status=status.HTTP_409_CONFLICT)
+        except Exception as e:
+            return Response({"detail": "An unexpected error occurred. Please try again later."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

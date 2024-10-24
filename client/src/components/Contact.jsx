@@ -1,60 +1,87 @@
 import React from "react";
-import { useGetContactInfoQuery } from "../store/api";
 import { useSelector } from "react-redux";
 import { Home, Phone, Mail } from "lucide-react";
+import ErrorDisplay from "./ErrorDisplay";
 
-const Contact = () => {
-  const { data, error, isLoading } = useGetContactInfoQuery();
-  const contactInfo = useSelector((state) => state.contactInfo.info); // Fetch from Redux store
+const Contact = ({ darkMode }) => {
+   const { info, error } = useSelector((state) => state.contactInfo);
 
-  // Use fetched data if store data is not available
-  const effectiveContactInfo = contactInfo || data;
+   if (error) return <ErrorDisplay error={error} />;
 
-  if (isLoading) return <div className="text-center py-8">Loading...</div>;
-  if (error)
-    return (
-      <div className="text-center py-8 text-red-600">
-        Error loading contact information.
-      </div>
-    );
+   const contactInfo = (info && info[0]);
 
   return (
-    <div className="bg-white p-8 max-w-2xl mx-auto">
-      <h3 className="text-indigo-700 font-semibold mb-2">Contact Us</h3>
-      <h2 className="text-3xl font-bold text-gray-800 mb-4">
-        Get In Touch With Us
+    <>
+      <h2
+        className={`font-bold mb-2 ${
+          darkMode ? "text-white" : "text-[#003366]"
+        }`}
+      >
+        Contact
       </h2>
-      <p className="text-gray-600 mb-8">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-      </p>
-
-      <div className="space-y-6">
-        <ContactDetail
-          icon={<Home />}
-          title="Our Location"
-          detail={effectiveContactInfo?.address}
-        />
-        <ContactDetail
-          icon={<Phone />}
-          title="Phone Number"
-          detail={effectiveContactInfo?.contact_number}
-        />
-        <ContactDetail
-          icon={<Mail />}
-          title="Email Address"
-          detail={effectiveContactInfo?.email}
-        />
+      <div
+        className={`max-w-2xl rounded-sm shadow-lg overflow-hidden ${
+          darkMode ? "bg-gray-800" : "bg-white"
+        }`}
+      >
+        <div className={`p-6 `}>
+          <h3
+            className={`text-2xl font-semibold mb-4 ${
+              darkMode ? "text-white" : "text-[#003366]"
+            }`}
+          >
+            Get In Touch With Us
+          </h3>
+          <p className={`mb-6 ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
+            For enquires, reach out to us
+          </p>
+          <div className="space-y-6">
+            <ContactDetail
+              Icon={Home}
+              label="Our Location"
+              value={contactInfo.address}
+              darkMode={darkMode}
+              iconColor={darkMode ? "#FF6F61" : "#003366"}
+            />
+            <ContactDetail
+              Icon={Phone}
+              label="Phone Number"
+              value={contactInfo.contact_number}
+              darkMode={darkMode}
+              iconColor={darkMode ? "#FF6F61" : "#003366"}
+            />
+            <ContactDetail
+              Icon={Mail}
+              label="Email Address"
+              value={contactInfo.email}
+              darkMode={darkMode}
+              iconColor={darkMode ? "#FF6F61" : "#003366"}
+            />
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
-const ContactDetail = ({ icon, title, detail }) => (
-  <div className="flex items-center">
-    <div className="bg-indigo-700 p-3 rounded-lg mr-4">{icon}</div>
-    <div>
-      <h4 className="font-semibold text-gray-800">{title}</h4>
-      <p className="text-gray-600">{detail}</p>
+const ContactDetail = ({ Icon, label, value, darkMode, iconColor }) => (
+  <div
+    className={`flex items-center ${
+      darkMode ? "text-gray-300" : "text-gray-900"
+    }`}
+  >
+    <div
+      className={`w-12 h-12 rounded-full flex items-center justify-center ${
+        darkMode ? "bg-gray-600" : "bg-[#F5F5F5]"
+      }`}
+    >
+      <Icon size={24} style={{ color: iconColor }} />
+    </div>
+    <div className="ml-4">
+      <p className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+        {label}
+      </p>
+      <p className="text-lg font-medium">{value}</p>
     </div>
   </div>
 );
