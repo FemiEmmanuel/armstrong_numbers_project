@@ -35,7 +35,7 @@ function Attempts({ darkMode }) {
     attempts: [],
     pagination: {},
   };
-  const { currentPage, totalPages, nextPage, previousPage } = pagination;
+  const { totalCount, totalPages, nextPage, previousPage } = pagination;
 
   return (
     <div>
@@ -124,7 +124,7 @@ function Attempts({ darkMode }) {
               }`}
             >
               <button
-                onClick={() => handlePageChange(currentPage - 1)}
+                onClick={() => handlePageChange(page - 1)}
                 disabled={!previousPage || isFetching}
                 className={`px-4 py-2 rounded transition-colors ${
                   darkMode
@@ -135,10 +135,13 @@ function Attempts({ darkMode }) {
                 <FaChevronLeft />
               </button>
               <span className={darkMode ? "text-gray-200" : "text-gray-700"}>
-                Page {currentPage} of {totalPages}
+                Page {page} of {totalPages}
+              </span>
+              <span className={darkMode ? "text-gray-200" : "text-gray-700"}>
+                Total Attempts: {totalCount}
               </span>
               <button
-                onClick={() => handlePageChange(currentPage + 1)}
+                onClick={() => handlePageChange(page + 1)}
                 disabled={!nextPage || isFetching}
                 className={`px-4 py-2 rounded transition-colors ${
                   darkMode
