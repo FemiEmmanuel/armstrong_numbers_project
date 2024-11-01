@@ -53,7 +53,7 @@ const Header = ({ sidebarExpanded, toggleSidebar, darkMode, setDarkMode }) => {
             darkMode ? "text-white" : "text-[#003366]"
           }`}
         >
-          Armstrong
+          Armstrong App
         </div>
         <div className="flex items-center gap-2">
           <button
