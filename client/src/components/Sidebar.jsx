@@ -23,8 +23,8 @@ const SidebarLink = ({
         ? "bg-[#003366] text-white hover:bg-[#FF6F61]"
         : `${
             darkMode
-              ? "text-gray-300 hover:bg-gray-700"
-              : "text-gray-600  hover:bg-[#FF6F61]"
+              ? "text-gray-300 hover:bg-[#FF6F61]"
+              : "text-gray-600  hover:bg-[#FF6F61] hover:text-white"
           }`
     }`}
   >
