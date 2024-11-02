@@ -202,11 +202,7 @@ function Profile({ darkMode }) {
                 <SubmitButton
                   isLoading={isLoading}
                   label={isLoading ? "Updating..." : "Save Changes"}
-                  className={`w-full ${
-                    darkMode
-                      ? "bg-blue-600 hover:bg-blue-700 text-white"
-                      : "bg-[#003366] text-white hover:bg-[#00509E]"
-                  }`}
+                  className="w-full"
                 />
               </div>
               <ErrorDisplay error={error} />  

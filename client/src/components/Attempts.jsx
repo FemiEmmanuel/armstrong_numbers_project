@@ -33,7 +33,9 @@ function Attempts({ darkMode }) {
   return (
     <div>
       <h2
-        className={`font-bold mb-4 ${darkMode ? "text-white" : "text-black"}`}
+        className={`font-bold mb-4 ${
+          darkMode ? "text-white" : "text-[#003366]"
+        }`}
       >
         Your Attempts
       </h2>
@@ -119,28 +121,20 @@ function Attempts({ darkMode }) {
               <button
                 onClick={() => handlePageChange(page - 1)}
                 disabled={!previousPage || isFetching}
-                className={`px-4 py-2 rounded transition-colors ${
-                  darkMode
-                    ? "bg-blue-600 hover:bg-blue-700 text-white disabled:bg-gray-700 disabled:text-gray-500"
-                    : "bg-blue-500 hover:bg-blue-600 text-white disabled:bg-gray-300"
-                }`}
+                className="px-4 py-2 rounded transition-colors bg-[#003366] text-white hover:bg-[#FF6F61] disabled:bg-gray-300"
               >
                 <FaChevronLeft />
               </button>
               <span className={darkMode ? "text-gray-200" : "text-gray-700"}>
                 Page {page} of {totalPages}
               </span>
-              <span className={darkMode ? "text-gray-200" : "text-gray-700"}>
+              <span className="text-[#FF6F61]">
                 Total Attempts: {totalCount}
               </span>
               <button
                 onClick={() => handlePageChange(page + 1)}
                 disabled={!nextPage || isFetching}
-                className={`px-4 py-2 rounded transition-colors ${
-                  darkMode
-                    ? "bg-blue-600 hover:bg-blue-700 text-white disabled:bg-gray-700 disabled:text-gray-500"
-                    : "bg-blue-500 hover:bg-blue-600 text-white disabled:bg-gray-300"
-                }`}
+                className="px-4 py-2 rounded transition-colors bg-[#003366] text-white hover:bg-[#FF6F61] disabled:bg-gray-300"
               >
                 <FaChevronRight />
               </button>

@@ -1,19 +1,16 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { SubmitButton } from "./FormInput";
 import { useSubmitFeedbackMutation } from "../store/api";
-import { addFeedback } from "../store/slices/feedbackSlice";
 
 const Feedback = ({ darkMode }) => {
   const [content, setContent] = useState("");
   const [submitted, setSubmitted] = useState(false);
-  const dispatch = useDispatch();
   const [submitFeedback, { isLoading }] = useSubmitFeedbackMutation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const result = await submitFeedback({ content }).unwrap();
-      dispatch(addFeedback(result));
       setContent("");
       setSubmitted(true);
     } catch (error) {
@@ -37,14 +34,14 @@ const Feedback = ({ darkMode }) => {
       >
         <h2
           className={`text-2xl font-bold mb-4 ${
-            darkMode ? "text-white" : "text-[#003366]"
+            darkMode ? "text-white" : "text-gray-700"
           }`}
         >
           Submit Feedback
         </h2>
         {submitted ? (
           <p className="text-green-500 font-semibold">
-            Thank you for your feedback!
+            Feedback submitted. Thank you!
           </p>
         ) : (
           <form onSubmit={handleSubmit}>
@@ -52,7 +49,7 @@ const Feedback = ({ darkMode }) => {
               <label
                 htmlFor="feedback"
                 className={`block text-sm font-medium mb-2 ${
-                  darkMode ? "text-gray-200" : "text-[#003366]"
+                  darkMode ? "text-gray-200" : "text-gray-600"
                 }`}
               >
                 Your Feedback:
@@ -70,19 +67,11 @@ const Feedback = ({ darkMode }) => {
                 required
               />
             </div>
-            <button
-              type="submit"
-              className={`w-full px-4 py-2 rounded-lg transition duration-300 ${
-                darkMode
-                  ? "bg-[#FF6F61] text-white hover:bg-[#ff8578]"
-                  : "bg-[#003366] text-white hover:bg-[#00509E]"
-              } focus:outline-none focus:ring-2 focus:ring-opacity-50 ${
-                darkMode ? "focus:ring-[#FF6F61]" : "focus:ring-[#003366]"
-              }`}
-              disabled={isLoading}
-            >
-              {isLoading ? "Submitting..." : "Submit Feedback"}
-            </button>
+            <SubmitButton
+              isLoading={isLoading}
+              label={isLoading ? "Submitting..." : "Submit feedback"}
+              className="w-full"
+            />
           </form>
         )}
       </div>

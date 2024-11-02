@@ -14,8 +14,6 @@ import storage from "redux-persist/lib/storage";
 
 import authReducer from "./slices/authSlice";
 import userReducer from "./slices/userSlice";
-import attemptReducer from "./slices/attemptSlice";
-import feedbackReducer from "./slices/feedbackSlice";
 import contactInfoReducer from "./slices/contactInfoSlice";
 import { api } from "./api";
 
@@ -29,8 +27,6 @@ const persistConfig = {
 const rootReducer = combineReducers({
   auth: authReducer,
   user: userReducer,
-  attempt: attemptReducer,
-  feedback: feedbackReducer,
   contactInfo: contactInfoReducer,
   [api.reducerPath]: api.reducer,
 });

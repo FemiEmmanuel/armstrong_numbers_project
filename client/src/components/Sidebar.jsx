@@ -20,11 +20,11 @@ const SidebarLink = ({
     onClick={onClick}
     className={`w-full flex items-center p-2 rounded-lg transition-colors duration-200 ${
       isActive
-        ? "text-blue-500 bg-blue-100 dark:bg-blue-900 dark:text-blue-300"
+        ? "bg-[#003366] text-white hover:bg-[#FF6F61]"
         : `${
             darkMode
               ? "text-gray-300 hover:bg-gray-700"
-              : "text-gray-600 hover:bg-gray-100"
+              : "text-gray-600  hover:bg-[#FF6F61]"
           }`
     }`}
   >

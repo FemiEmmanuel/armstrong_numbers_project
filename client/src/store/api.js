@@ -1,7 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { setCredentials, logout } from "./slices/authSlice";
 import { setUser, setError as setUserError } from "./slices/userSlice";
-import { addFeedback } from "./slices/feedbackSlice";
 import {
   setContactInfo,
   setError as setContactError,
@@ -21,7 +20,7 @@ const baseQuery = fetchBaseQuery({
 
 const baseQueryWithReauth = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions);
-  if (result.error && result.error.status === 401) {
+  if (result.error?.status === 401 && args.url !== "token/refresh/") {
     const refreshResult = await baseQuery(
       {
         url: "token/refresh/",
@@ -51,6 +50,7 @@ export const api = createApi({
   baseQuery: baseQueryWithReauth,
   tagTypes: ["User", "Attempts", "Feedback", "ContactInfo"],
   endpoints: (builder) => ({
+
     // Auth endpoints
     login: builder.mutation({
       query: (credentials) => ({
@@ -105,6 +105,7 @@ export const api = createApi({
           );
         } catch (error) {
           dispatch(logout());
+          dispatch(api.util.resetApiState());
         }
       },
     }),
@@ -151,6 +152,7 @@ export const api = createApi({
       invalidatesTags: ["User"],
     }),
 
+
     deleteUser: builder.mutation({
       query: (userId) => ({
         url: `users/${userId}/soft_delete/`,
@@ -162,11 +164,7 @@ export const api = createApi({
           dispatch(setUser(null));
           dispatch(setCredentials({ accessToken: null, refreshToken: null }));
           dispatch(api.util.resetApiState());
-        } catch (error) {
-          const errorMessage =
-            error?.error?.data?.detail || "Failed to delete account";
-          throw error;
-        }
+        } catch (error) {}
       },
       invalidatesTags: ["User", "Attempts", "Feedback"],
     }),
@@ -204,23 +202,17 @@ export const api = createApi({
       invalidatesTags: ["Attempts"],
     }),
 
-    // Feedback endpoints
+    // Feedback endpoint
     submitFeedback: builder.mutation({
       query: (feedback) => ({
         url: "feedback/",
         method: "POST",
         body: feedback,
       }),
-      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled;
-          dispatch(addFeedback(data));
-        } catch (error) {}
-      },
       invalidatesTags: ["Feedback"],
     }),
 
-    // Contact Info endpoints
+    // Contact Info endpoint
     getContactInfo: builder.query({
       query: () => "contact/",
       providesTags: ["ContactInfo"],
@@ -232,9 +224,7 @@ export const api = createApi({
           const { data } = await cacheDataLoaded;
           dispatch(setContactInfo(data));
         } catch (error) {
-          const errorMessage =
-            error?.error?.data?.detail || "Error loading contact information";
-          dispatch(setContactError(errorMessage));
+          dispatch(setContactError(error));
         }
         await cacheEntryRemoved;
       },

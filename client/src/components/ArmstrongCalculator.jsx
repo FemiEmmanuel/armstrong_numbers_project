@@ -259,7 +259,7 @@ const TabButton = ({ label, isActive, onClick, darkMode }) => (
     } ${
       darkMode
         ? "hover:bg-[#ff8578] hover:text-white"
-        : "hover:bg-[#00509E] hover:text-white"
+        : "hover:bg-[#ff8578] hover:text-white"
     }`}
     onClick={onClick}
   >
