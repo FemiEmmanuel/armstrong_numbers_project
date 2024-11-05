@@ -17,15 +17,13 @@ const SignupForm = ({ onSwitchTab }) => {
   const [register, { isLoading, error }] = useRegisterMutation();
   const [showSuccess, setShowSuccess] = useState(false);
 
-  useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === "Escape") {
-        setShowSuccess(false);
-      }
-    };
-    window.addEventListener("keydown", handleEscape);
-    return () => window.removeEventListener("keydown", handleEscape);
-  }, []);
+
+  const formatFieldName = (fieldName) => {
+    return fieldName
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
 
   const validateForm = () => {
     const errors = {};
@@ -66,7 +64,7 @@ const SignupForm = ({ onSwitchTab }) => {
           value.length > 3 &&
           similarityCheck(field, value)
       )
-      .map(([field]) => field);
+      .map(([field]) => formatFieldName(field));
 
     if (similarFields.length > 0) {
       passwordErrors.push(
@@ -253,7 +251,7 @@ const SignupForm = ({ onSwitchTab }) => {
         </p>
       </form>
 
-      {/* Success Dialog remains unchanged */}
+
       {showSuccess && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div

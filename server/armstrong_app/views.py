@@ -121,13 +121,13 @@ class AttemptViewSet(viewsets.ModelViewSet):
         try:
             min_range, max_range = int(min_range), int(max_range)
         except ValueError:
-            return Response({"detail": "min_range and max_range must be valid integers."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "min-range and max-range must be valid integers."}, status=status.HTTP_400_BAD_REQUEST)
 
         if min_range > max_range:
-            return Response({"detail": "min_range must be less than max_range."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "min-range must be less than max-range."}, status=status.HTTP_400_BAD_REQUEST)
 
-        if max_range - min_range > 1000000:
-            return Response({"detail": "Range too large. Please limit to 1,000,000 numbers at a time."}, status=status.HTTP_400_BAD_REQUEST)
+        if max_range - min_range > 5000000:
+            return Response({"detail": "Range too large. Please limit to 5,000,000 numbers at a time."}, status=status.HTTP_400_BAD_REQUEST)
 
         armstrong_numbers = []
         attempts_to_create = []
