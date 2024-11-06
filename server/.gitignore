@@ -17,6 +17,3 @@ venv/
 # Project specific
 media/
 static/
-
-#sqlite
-db.sqlite3
