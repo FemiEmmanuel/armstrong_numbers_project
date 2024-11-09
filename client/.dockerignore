@@ -1,0 +1,10 @@
+node_modules/
+.DS_Store
+coverage/
+build/
+dist/
+.git/
+.gitignore
+.dockerignore
+README.md
+.vscode/
