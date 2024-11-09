@@ -7,9 +7,9 @@ services:
       - "8000:8000"
     volumes:
       - ./server:/app
-      - ./server/db.sqlite3:/app/db.sqlite3
-    depends_on:
-      - db
+      - backend_data:/app/data
+    env_file:
+      - .env
     networks:
       - armstrong-network
 
@@ -18,21 +18,20 @@ services:
       context: ./client
       dockerfile: Dockerfile
     ports:
-      - "3000:5173"
+      - "5173:5173"
     volumes:
       - ./client:/app
       - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:8000
     depends_on:
       - backend
     networks:
       - armstrong-network
 
-  db:
-    image: alpine/sqlite
-    volumes:
-      - ./data:/data
-    networks:
-      - armstrong-network
+  
+volumes:
+  backend_data:
 
 networks:
   armstrong-network:
