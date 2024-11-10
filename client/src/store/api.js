@@ -6,8 +6,10 @@ import {
   setError as setContactError,
 } from "./slices/contactInfoSlice";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const baseQuery = fetchBaseQuery({
-  baseUrl: "http://localhost:8000/api/",
+  baseUrl: `${API_URL}/api/`,
   credentials: "include",
   prepareHeaders: (headers, { getState }) => {
     const token = getState().auth.accessToken;

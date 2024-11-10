@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: armstrong-backend
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn armstrong.wsgi:application --bind 0.0.0.0:$PORT
+    disk:
+      name: sqlite
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.10
+      - key: DJANGO_SETTINGS_MODULE
+        value: armstrong.settings
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: false
+      - key: ALLOWED_HOSTS
+        value: .onrender.com
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://your-frontend-app.onrender.com
+      - key: ACCESS_TOKEN_LIFETIME_DAYS
+        value: 1
+      - key: REFRESH_TOKEN_LIFETIME_DAYS
+        value: 7
