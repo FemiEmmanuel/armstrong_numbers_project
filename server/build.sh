@@ -7,6 +7,7 @@ pip install -r requirements.txt
 
 # Run migrations
 python manage.py migrate
+python manage.py createsuperuser --noinput
 
 # Collect static files
 python manage.py collectstatic --no-input
