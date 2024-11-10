@@ -131,7 +131,7 @@ SIMPLE_JWT = {
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = os.environ.get(
     'CORS_ALLOWED_ORIGINS',
-    'http://localhost:5173,https://your-frontend-app.onrender.com'
+    'http://localhost:5173,https://armstrong-loo5.onrender.com'
 ).split(',')
 
 # Security settings
