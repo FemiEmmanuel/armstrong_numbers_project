@@ -9,7 +9,7 @@ services:
       - ./server:/app
       - backend_data:/app/data
     env_file:
-      - .env
+      - ./server/armstrong/.env
     networks:
       - armstrong-network
 
