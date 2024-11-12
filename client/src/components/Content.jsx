@@ -41,8 +41,8 @@ const Content = ({ activePage, sidebarExpanded, isMobile, darkMode }) => {
 
   return (
     <main
-      className={`flex-1 p-6 transition-all duration-300 ease-in-out ${
-        sidebarExpanded && !isMobile ? "md:ml-64" : "md:ml-16"
+      className={`flex-1 p-3 md:p-6 transition-all duration-300 ease-in-out ${
+        !isMobile ? (sidebarExpanded ? "ml-64" : "ml-16") : "ml-16"
       } ${darkMode ? "bg-gray-900 text-white" : "bg-white text-black"}`}
     >
       {renderContent()}

@@ -78,8 +78,6 @@ const Sidebar = ({
       } ${
         expanded
           ? "translate-x-0 w-64"
-          : isMobile
-          ? "-translate-x-full w-64"
           : "translate-x-0 w-16"
       }`}
     >
