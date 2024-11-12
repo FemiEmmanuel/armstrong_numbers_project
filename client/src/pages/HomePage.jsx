@@ -4,22 +4,22 @@ import Header from "../components/Header";
 import Content from "../components/Content";
 
 const HomePage = () => {
-  const [sidebarExpanded, setSidebarExpanded] = useState(true);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [sidebarExpanded, setSidebarExpanded] = useState(!isMobile);
   const [darkMode, setDarkMode] = useState(false);
   const [activePage, setActivePage] = useState("home");
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  
 
   useEffect(() => {
     const handleResize = () => {
       const newIsMobile = window.innerWidth < 768;
       setIsMobile(newIsMobile);
-      if (!newIsMobile && !sidebarExpanded) {
-        setSidebarExpanded(true);
-      }
+      setSidebarExpanded(!newIsMobile);
     };
+    
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [sidebarExpanded]);
+  }, []);
 
   const toggleSidebar = () => {
     setSidebarExpanded(!sidebarExpanded);
