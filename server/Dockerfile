@@ -1,15 +1,9 @@
-FROM python:3.11-alpine
+FROM python:3.11-slim-bullseye
 WORKDIR /app
 
 # Create and activate virtual environment
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
-
-# Install system dependencies
-RUN apk add --no-cache \
-    gcc \
-    musl-dev \
-    python3-dev
 
 # Install Python dependencies
 COPY requirements.txt .

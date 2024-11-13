@@ -1,4 +1,4 @@
-FROM node:18-alpine3.20
+FROM node:18-bullseye-slim
 WORKDIR /app
 
 # Install dependencies
