@@ -1,0 +1,35 @@
+services:
+  backend-prod:
+    image: yolemi001/armstrong-backend:prod
+    build:
+      context: ./server
+      dockerfile: Dockerfile.prod
+    ports:
+      - "8001:8000"  # Different port from development
+    volumes:
+      - backend_prod_data:/app/data
+    env_file:
+      - ./server/armstrong/.env.prod
+    networks:
+      - armstrong-network-prod
+    restart: always
+
+  frontend-prod:
+    image: yolemi001/armstrong-frontend:prod
+    build:
+      context: ./client
+      dockerfile: Dockerfile.prod
+    ports:
+      - "80:80"  # Standard HTTP port for production
+    networks:
+      - armstrong-network-prod
+    restart: always
+    depends_on:
+      - backend-prod
+
+volumes:
+  backend_prod_data:
+
+networks:
+  armstrong-network-prod:
+    driver: bridge
